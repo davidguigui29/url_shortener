@@ -1,0 +1,8 @@
+<odoo>
+    <record id="seq_short_url" model="ir.sequence">
+        <field name="name">Short URL</field>
+        <field name="code">short.url</field>
+        <field name="prefix">SU/</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>
