@@ -5,6 +5,7 @@ import re
 from urllib.parse import urlparse
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError
 
 _HOSTNAME_TLD_RE = re.compile(r'^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$')
 _IPV4_RE = re.compile(r'^\d{1,3}(\.\d{1,3}){3}$')
@@ -21,11 +22,22 @@ class ShortURL(models.Model):
     short_url = fields.Char(string='Short URL', compute='_compute_short_url', store=True)
     click_count = fields.Integer(string='Clicks', default=0)
 
+
     @api.depends('short_code')
     def _compute_short_url(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         for rec in self:
             rec.short_url = f"{base_url}/s/{rec.short_code}" if rec.short_code else False
+
+
+    # @api.depends('short_code')
+    # def _compute_short_url(self):
+    #     base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+    #     # ✅ Force HTTPS if base_url starts with HTTP
+    #     if base_url and base_url.startswith('http://'):
+    #         base_url = base_url.replace('http://', 'https://', 1)
+    #     for rec in self:
+    #         rec.short_url = f"{base_url}/s/{rec.short_code}" if rec.short_code else False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -116,70 +128,4 @@ class ShortURL(models.Model):
                     'message': _('The hostname "%s" does not look like a valid domain. Please include a full domain (e.g. example.com) or a valid IP.') % hostname
                 }
             }
-
-
-
-
-# # -*- coding: utf-8 -*-
-# import string
-# import random
-# from urllib.parse import urlparse
-# from odoo import models, fields, api, _
-# from odoo.exceptions import ValidationError
-
-
-# class ShortURL(models.Model):
-#     _name = 'short.url'
-#     _description = 'Shortened URL'
-#     _rec_name = 'short_code'
-
-#     name = fields.Char(string='Title')
-#     original_url = fields.Char(string='Original URL', required=True)
-#     short_code = fields.Char(string='Short Code', copy=False, index=True, readonly=True)
-#     short_url = fields.Char(string='Short URL', compute='_compute_short_url', store=True)
-#     click_count = fields.Integer(string='Clicks', default=0)
-
-#     @api.depends('short_code')
-#     def _compute_short_url(self):
-#         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-#         for rec in self:
-#             rec.short_url = f"{base_url}/s/{rec.short_code}" if rec.short_code else False
-
-#     @api.model_create_multi
-#     def create(self, vals_list):
-#         for vals in vals_list:
-#             # Ensure a short code exists
-#             if not vals.get('short_code'):
-#                 vals['short_code'] = self._generate_short_code()
-
-#             # Clean and validate the URL
-#             url = vals.get('original_url', '').strip()
-#             if url and not url.lower().startswith(('http://', 'https://')):
-#                 url = 'https://' + url
-#             self._validate_url(url)
-#             vals['original_url'] = url
-#         return super().create(vals_list)
-
-#     def write(self, vals):
-#         if 'original_url' in vals:
-#             url = vals['original_url'].strip()
-#             if url and not url.lower().startswith(('http://', 'https://')):
-#                 url = 'https://' + url
-#             self._validate_url(url)
-#             vals['original_url'] = url
-#         return super().write(vals)
-
-#     def _generate_short_code(self, length=6):
-#         """Generate unique alphanumeric short code"""
-#         chars = string.ascii_letters + string.digits
-#         while True:
-#             code = ''.join(random.choice(chars) for _ in range(length))
-#             if not self.search([('short_code', '=', code)], limit=1):
-#                 return code
-
-#     def _validate_url(self, url):
-#         """Ensure the given URL is valid and uses HTTP(S)."""
-#         parsed = urlparse(url)
-#         if not parsed.scheme or not parsed.netloc:
-#             raise ValidationError(_("Invalid URL format. Please enter a valid URL, e.g., https://example.com"))
 

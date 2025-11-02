@@ -11,7 +11,10 @@
         'security/ir.model.access.csv',
         'data/short_url_sequence.xml',
         'views/short_url_views.xml',
+        'views/assets.xml',
     ],
+
+
     'application': True,
     'license': 'LGPL-3',
 }

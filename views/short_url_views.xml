@@ -4,10 +4,10 @@
         <field name="model">short.url</field>
         <field name="arch" type="xml">
             <list>
-                <field name="name"/>
-                <field name="original_url"/>
-                <field name="short_url"/>
-                <field name="click_count"/>
+                <field name="name" />
+                <field name="original_url" />
+                <field name="short_url" widget="CopyClipboardURL"/>
+                <field name="click_count" />
             </list>
         </field>
     </record>
@@ -19,11 +19,17 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="original_url"/>
-                        <field name="short_code" readonly="1"/>
-                        <field name="short_url" readonly="1"/>
-                        <field name="click_count" readonly="1"/>
+                        <field name="name" />
+                        <field name="original_url" />
+                        <field name="short_code" modifiers="{'readonly': true}" />
+
+                        <div class="o_row">
+
+                            <field name="short_url" widget="CopyClipboardURL"
+                                modifiers="{'readonly': true}" class="oe_inline" />
+                        </div>
+
+                        <field name="click_count" modifiers="{'readonly': true}" />
                     </group>
                 </sheet>
             </form>
@@ -35,8 +41,8 @@
         <field name="res_model">short.url</field>
         <field name="view_mode">list,form</field>
     </record>
-    
-    <menuitem id="menu_url_shortener_root" name="URL Shortener" sequence="10"/>
-    <menuitem id="menu_short_url" name="Short URLs" parent="menu_url_shortener_root" action="action_short_url"/>
 
+    <menuitem id="menu_url_shortener_root" name="URL Shortener" sequence="10" />
+    <menuitem id="menu_short_url" name="Short URLs" parent="menu_url_shortener_root"
+        action="action_short_url" />
 </odoo>
